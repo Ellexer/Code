@@ -1,0 +1,47 @@
+Imports MongoDB.Driver
+Imports MongoDB.Bson
+Public Class Form1
+    Private Sub Licensing1_Load(sender As Object, e As EventArgs)
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        If GunaTextBox1.Text = "" Or GunaTextBox2.Text = "" Then
+            MsgBox("Please fillup username and password!")
+        Else
+            Dim username As String = GunaTextBox1.Text
+            Dim password As String = GunaTextBox2.Text
+
+            ' Connect to MongoDB Atlas
+            Dim connectionString As String = "mongodb+srv://Ellexer:AEMSGRP6@cluster0.zrstdpb.mongodb.net/event"
+            Dim client As New MongoClient(connectionString)
+            Dim database As IMongoDatabase = client.GetDatabase("event")
+            Dim collection As IMongoCollection(Of BsonDocument) = database.GetCollection(Of BsonDocument)("admin")
+
+            ' Create a filter for username and password
+            Dim filter As FilterDefinition(Of BsonDocument) = Builders(Of BsonDocument).Filter.And(
+                Builders(Of BsonDocument).Filter.Regex("username", New BsonRegularExpression(username, "i")), ' "i" for case-insensitive matching
+                Builders(Of BsonDocument).Filter.Regex("password", New BsonRegularExpression(password, "i"))
+            )
+
+            ' Execute the query
+            Dim result As BsonDocument = collection.Find(filter).FirstOrDefault()
+
+            If result IsNot Nothing Then
+                ' Login successful
+                MessageBox.Show("Login successful!")
+                GunaTextBox1.Text = ""
+                GunaTextBox2.Text = ""
+                Form3.Show()
+                Me.Hide()
+            Else
+                ' Login failed
+                MsgBox("Invalid username or password!", MsgBoxStyle.Critical)
+            End If
+        End If
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Form2.Show()
+        Me.Hide()
+    End Sub
+End Class
