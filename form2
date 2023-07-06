@@ -1,0 +1,42 @@
+Imports MongoDB.Driver
+Imports MongoDB.Bson
+Public Class Form2
+    Private Sub GunaLabel3_Click(sender As Object, e As EventArgs) Handles GunaLabel3.Click
+
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        If GunaLineTextBox1.Text = "" Or GunaLineTextBox2.Text = "" Then
+            MsgBox("Please fillup username and password!")
+        Else
+            MsgBox("account successfully log in!")
+            Dim username As String = GunaLineTextBox1.Text
+            Dim password As String = GunaLineTextBox2.Text
+            Dim connectionString As String = "mongodb+srv://Ellexer:AEMSGRP6@cluster0.zrstdpb.mongodb.net/event"
+
+            ' Step 2: Connect to the MongoDB Atlas cluster
+            Dim client As MongoClient = New MongoClient(connectionString)
+            Dim database As IMongoDatabase = client.GetDatabase("event")
+
+            ' Step 3: Perform database operation
+            Dim collection As IMongoCollection(Of BsonDocument) = database.GetCollection(Of BsonDocument)("admin")
+            Dim document As BsonDocument = New BsonDocument()
+            document.Add("username", username)
+            document.Add("password", password)
+            collection.InsertOne(document)
+
+            ' Step 4: Display inserted document
+            Dim insertedDocument As BsonDocument = collection.Find(New BsonDocument()).FirstOrDefault()
+            MessageBox.Show("Registration Successful!" & vbCrLf & "Inserted Document:" & vbCrLf & insertedDocument.ToJson())
+            Form1.Show()
+            Me.Hide()
+
+        End If
+
+    End Sub
+
+    Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+        Form1.Show()
+        Me.Hide()
+    End Sub
+End Class
